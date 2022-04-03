@@ -118,7 +118,7 @@ in
 
     fileSystems."/" = 
     let 
-      mkOptionIfNotEmpty = option: optionName: if option == null then "" else "${optionName}=${option}";
+      mkOptionIfNotEmpty = option: optionName: if (option == null) then "" else "${optionName}=${option}";
       nfsPort = mkOptionIfNotEmpty config.novaboot.nfs.server.nfsPort "port";
       mountPort = mkOptionIfNotEmpty config.novaboot.nfs.server.mountPort "mountport";
       nfsOptions = config.novaboot.nfs.server.options;
@@ -127,7 +127,7 @@ in
       neededForBoot = true;
       device = "${address}:${rootPath}";
       fsType = "nfs";
-      options = nfsOptions ++ [ "port=${nfsPort}" "mountport=${mountPort}" ];
+      options = nfsOptions ++ (builtins.filter (x: x != "") [ "${nfsPort}" "${mountPort}" ]);
     };
 
     boot.loader.grub.enable = false;
