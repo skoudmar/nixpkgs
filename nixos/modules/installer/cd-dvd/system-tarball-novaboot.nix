@@ -186,6 +186,7 @@ in
         name = "nfsroot";
         patch = null;
         extraConfig = ''
+          BCMGENET y
           IP_PNP y
           IP_PNP_DHCP y
           NFS_FS y
