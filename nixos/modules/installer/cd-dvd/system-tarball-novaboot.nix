@@ -79,6 +79,7 @@ in
     };
 
     novaboot.nfs.server.address = mkOption {
+      type = with types; nullOr str;
       example = literalExpression "1.2.3.4";
       description = ''
         Address of the NFS server hosting the root filesystem.
@@ -86,18 +87,22 @@ in
     };
 
     novaboot.nfs.server.rootPath = mkOption {
+      type = with types; path;
       example = "/nfsroot";
     };
 
     novaboot.nfs.server.nfsPort = mkOption {
-      default = "";
+      type = with types; nullOr port;
+      default = null;
     };
 
     novaboot.nfs.server.mountPort = mkOption {
+      type = with types; nullOr port;
       default = config.novaboot.nfs.server.nfsPort;
     };
 
     novaboot.nfs.server.options = mkOption {
+      type = with types; listOf str;
       default = [ ];
       example = literalExpression ''[ "nolock" ]'';
     };
@@ -113,7 +118,7 @@ in
 
     fileSystems."/" = 
     let 
-      mkOptionIfNotEmpty = option: optionName: if option == "" then "" else "${optionName}=${option}";
+      mkOptionIfNotEmpty = option: optionName: if option == null then "" else "${optionName}=${option}";
       nfsPort = mkOptionIfNotEmpty config.novaboot.nfs.server.nfsPort "port";
       mountPort = mkOptionIfNotEmpty config.novaboot.nfs.server.mountPort "mountport";
       nfsOptions = config.novaboot.nfs.server.options;
