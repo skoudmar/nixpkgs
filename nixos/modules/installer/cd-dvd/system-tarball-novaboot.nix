@@ -90,6 +90,8 @@ in
       default = null;
       description = ''
         Address of the NFS server hosting the root filesystem.
+
+        Keep null if you intend to use nfsPrefix argument on kernel command line.
       '';
     };
 
@@ -97,22 +99,43 @@ in
       type = with types; path;
       example = "/nfsroot";
       default = "/";
+      description = ''
+        Exported path on the NFS server to be mounted as '/'.
+
+        Prefix provided as nfsPrefix to the kernel command line will be prepended
+        to this path.
+      '';
     };
 
     novaboot.nfs.server.nfsPort = mkOption {
       type = with types; nullOr port;
       default = null;
+      description = ''
+        Port for NFS protocol of NFS server hosting the root directory.
+
+        Do not specify if you intend to supply this in nfsOptions on the kernel command line.
+      '';
     };
 
     novaboot.nfs.server.mountPort = mkOption {
       type = with types; nullOr port;
       default = config.novaboot.nfs.server.nfsPort;
+      description = ''
+        Port for MOUNT protocol of NFS server hosting the root directory.
+
+        Do not specify if you intend to supply this in nfsOptions on the kernel command line.
+      '';
     };
 
     novaboot.nfs.server.options = mkOption {
       type = with types; listOf str;
       default = [ ];
-      example = literalExpression ''[ "nolock" ]'';
+      example = literalExpression ''[ "nolock" "tcp" ]'';
+      description = ''
+        Additional options passed to mount durring mounting of the root directory.
+
+        This options will be appended by nfsOptions on the kernel command line.
+      '';
     };
 
   };
