@@ -55,6 +55,10 @@ let
       set +ex
     '';
 
+  # if rootPath starts with single '/' prepend it with another '/'.
+  parseRootPath = rootPath: if ((builtins.substring 0 1 rootPath) == "/") && ((builtins.substring 0 2 rootPath) != "//")
+                              then "/" + rootPath
+                              else rootPath;
 in
 
 {
@@ -83,6 +87,7 @@ in
     novaboot.nfs.server.address = mkOption {
       type = with types; nullOr str;
       example = literalExpression "1.2.3.4";
+      default = null;
       description = ''
         Address of the NFS server hosting the root filesystem.
       '';
@@ -91,6 +96,7 @@ in
     novaboot.nfs.server.rootPath = mkOption {
       type = with types; path;
       example = "/nfsroot";
+      default = "/";
     };
 
     novaboot.nfs.server.nfsPort = mkOption {
@@ -124,10 +130,11 @@ in
       nfsPort = mkOptionIfNotEmpty config.novaboot.nfs.server.nfsPort "port";
       mountPort = mkOptionIfNotEmpty config.novaboot.nfs.server.mountPort "mountport";
       nfsOptions = config.novaboot.nfs.server.options;
-      inherit (config.novaboot.nfs.server) address rootPath;
+      address = config.novaboot.nfs.server.address;
+      rootPath = parseRootPath config.novaboot.nfs.server.rootPath;
     in {
       neededForBoot = true;
-      device = "${address}:${rootPath}";
+      device = if (address != null) then "${address}:${rootPath}" else "${rootPath}";
       fsType = "nfs";
       options = nfsOptions ++ (builtins.filter (x: x != "") [ "${nfsPort}" "${mountPort}" ]);
     };
