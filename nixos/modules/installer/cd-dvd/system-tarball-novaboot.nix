@@ -33,11 +33,13 @@ let
     "initrdRepack" 
     {
       inherit (pkgs) ubootTools zstd;
-      initrd = config.system.build.initialRamdisk + "/" + config.system.boot.loader.initrdFile;
+      inherit (config.system.build) initialRamdisk;
+      inherit (config.system.boot.loader) initrdFile;
       repackName = "nixos-initrd-repack";
     }
     ''
       RAW=$(mktemp)
+      initrd=$initialRamdisk/$initrdFile
 
       while [ -L "$initrd" ]; do
         initrd=$(readlink -n $initrd)
