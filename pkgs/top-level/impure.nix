@@ -9,17 +9,22 @@ let
   # Return ‘x’ if it evaluates, or ‘def’ if it throws an exception.
   try = x: def: let res = builtins.tryEval x; in if res.success then res.value else def;
 
+  # Used to override default build 
+  systemFile = if builtins.pathExists ../../system.nix
+                then import ../../system.nix 
+                else {};
+
 in
 
 { # We put legacy `system` into `localSystem`, if `localSystem` was not passed.
   # If neither is passed, assume we are building packages on the current
   # (build, in GNU Autotools parlance) platform.
-  localSystem ? { system = args.system or builtins.currentSystem; }
+  localSystem ? { system = args.system or (systemFile.build or builtins.currentSystem); }
 
 # These are needed only because nix's `--arg` command-line logic doesn't work
 # with unnamed parameters allowed by ...
 , system ? localSystem.system
-, crossSystem ? localSystem
+, crossSystem ? systemFile.host or localSystem
 
 , # Fallback: The contents of the configuration file found at $NIXPKGS_CONFIG or
   # $HOME/.config/nixpkgs/config.nix.
@@ -80,5 +85,5 @@ assert args ? localSystem -> !(args ? system);
 assert args ? system -> !(args ? localSystem);
 
 import ./. (builtins.removeAttrs args [ "system" ] // {
-  inherit config overlays localSystem;
+  inherit config overlays localSystem crossSystem;
 })
