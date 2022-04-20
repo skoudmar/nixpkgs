@@ -44,6 +44,9 @@
 
       nixosModules = {
         notDetected = import ./nixos/modules/installer/scan/not-detected.nix;
+        novabootTarball = import ./nixos/modules/installer/cd-dvd/system-tarball-novaboot.nix;
+        profileMinimal = import ./nixos/modules/profiles/minimal.nix;
+        profileInstallationDevice = import ./nixos/modules/profiles/installation-device.nix;
       };
     };
 }
