@@ -1,5 +1,5 @@
 # This module contains the basic configuration for building a NixOS
-# tarball for the sheevaplug.
+# tarball for the novaboot.
 
 { config, lib, pkgs, ... }:
 
