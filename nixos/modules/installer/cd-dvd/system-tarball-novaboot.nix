@@ -21,7 +21,7 @@ let
   novabootScript = pkgs.writeScript "novabootScript" ''
     #!/usr/bin/env novaboot
 
-    load kernel console=ttyAMA0,115200 8250.nr_uarts=1 console=ttyS0,115200 ip=dhcp loglevel=8 allowShell=1 init=${initLocation}
+    load kernel console=ttyAMA0,115200 8250.nr_uarts=1 console=ttyS0,115200 ip=dhcp loglevel=8 init=${initLocation} nfsPrefix=$NB_NFSROOT nfsOptions=$NB_NFSOPTS allowShell=1 
     load initrd
     load bcm2711-rpi-4-b.dtb
 
