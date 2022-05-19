@@ -212,6 +212,16 @@ for o in $(cat /proc/cmdline); do
             fi
             ln -s "$root" /dev/root
             ;;
+        nfsPrefix=*)
+            # If an NFS prefix is specified on the kernel command
+            # line, use that for all NFS mounts.
+            nfsprefix=${o#nfsPrefix=}
+            ;;
+        nfsOptions=*)
+            # If additional NFS options are specified on the kernel
+            # command line, use those for all NFS mounts.
+            nfsoptions=${o#nfsOptions=}
+            ;;
         copytoram)
             copytoram=1
             ;;
@@ -354,6 +364,15 @@ mountFS() {
     if [ "$fsType" = auto ]; then
         fsType=$(blkid -o value -s TYPE "$device")
         if [ -z "$fsType" ]; then fsType=auto; fi
+    fi
+
+    if [ "$fsType" = nfs ]; then
+        if [ -n "$nfsPrefix" ]; then
+            device="${nfsPrefix}${device}"
+        fi
+        if [ -n "$nfsOptions" ]; then
+            options="${options},${nfsOptions}"
+        fi
     fi
 
     # Filter out x- options, which busybox doesn't do yet.
