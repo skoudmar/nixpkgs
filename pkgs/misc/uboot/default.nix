@@ -67,6 +67,7 @@ let
       ]))
       swig
     ];
+    buildInputs = [openssl];
     depsBuildBuild = [ buildPackages.stdenv.cc ];
 
     hardeningDisable = [ "all" ];
