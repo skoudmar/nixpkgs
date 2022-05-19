@@ -656,6 +656,19 @@ in
           '';
       };
 
+    boot.noRoot = mkOption {
+      default = false;
+      type = types.bool;
+      description =
+        ''
+          Enabling this option inverts the assert that fileSystems must
+          contain entry with mountPoint '/'.
+
+          Useful when mounting the filesystem over network and do not know 
+          its address at build time and will supply it on kernel command line.
+        '';
+    };
+
     fileSystems = mkOption {
       type = with lib.types; attrsOf (submodule {
         options.neededForBoot = mkOption {
@@ -677,9 +690,6 @@ in
 
   config = mkIf config.boot.initrd.enable {
     assertions = [
-      { assertion = any (fs: fs.mountPoint == "/") fileSystems;
-        message = "The ‘fileSystems’ option does not specify your root file system.";
-      }
       { assertion = let inherit (config.boot) resumeDevice; in
           resumeDevice == "" || builtins.substring 0 1 resumeDevice == "/";
         message = "boot.resumeDevice has to be an absolute path."
@@ -704,7 +714,18 @@ in
           world-readable in the Nix store!
         '';
       }
-    ];
+    ] ++ (
+      if config.boot.noRoot
+      then [
+        { assertion = all (fs: fs.mountPoint != "/") fileSystems;
+          message = "The ‘fileSystems’ option contains entry with mountPoint for ‘/’ and ‘config.boot.noRoot’ is true.";
+        }
+      ]
+      else [
+        { assertion = any (fs: fs.mountPoint == "/") fileSystems;
+          message = "The ‘fileSystems’ option does not specify your root file system.";
+        }
+      ]);
 
     system.build =
       { inherit bootStage1 initialRamdisk initialRamdiskSecretAppender extraUtils; };
